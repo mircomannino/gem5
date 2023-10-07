@@ -256,20 +256,24 @@ TLB::checkPermissions(STATUS status, PrivilegeMode pmode, Addr vaddr,
 Fault
 TLB::createPagefault(Addr vaddr, BaseMMU::Mode mode)
 {
-    ExceptionCode code;
-    if (mode == BaseMMU::Read)
-        code = ExceptionCode::LOAD_PAGE;
-    else if (mode == BaseMMU::Write)
-        code = ExceptionCode::STORE_PAGE;
-    else
-        code = ExceptionCode::INST_PAGE;
-    return std::make_shared<AddressFault>(vaddr, code);
+    if (FullSystem) {
+        ExceptionCode code;
+        if (mode == BaseMMU::Read)
+            code = ExceptionCode::LOAD_PAGE;
+        else if (mode == BaseMMU::Write)
+            code = ExceptionCode::STORE_PAGE;
+        else
+            code = ExceptionCode::INST_PAGE;
+        return std::make_shared<AddressFault>(vaddr, code);
+    }
+    
+    return std::make_shared<GenericPageTableFault>(vaddr);
 }
 
 Addr
 TLB::translateWithTLB(Addr vaddr, uint16_t asid, BaseMMU::Mode mode)
 {
-    TlbEntry *e = lookup(vaddr, asid, mode, false);
+    TlbEntry *e = lookup(vaddr, asid, mode, true);
     assert(e != nullptr);
     return e->paddr << PageShift | (vaddr & mask(e->logBytes));
 }
@@ -292,7 +296,7 @@ TLB::doTranslate(const RequestPtr &req, ThreadContext *tc,
             delayed = true;
             return fault;
         }
-        e = lookup(vaddr, satp.asid, mode, false);
+        e = lookup(vaddr, satp.asid, mode, true);
         assert(e != nullptr);
     }
 
@@ -339,7 +343,7 @@ TLB::translate(const RequestPtr &req, ThreadContext *tc,
 {
     delayed = false;
 
-    if (FullSystem) {
+    if (FullSystem || tc->getProcessPtr()->useArchPT) {
         PrivilegeMode pmode = getMemPriv(tc, mode);
         SATP satp = tc->readMiscReg(MISCREG_SATP);
         if (pmode == PrivilegeMode::PRV_M || satp.mode == AddrXlateMode::BARE)
@@ -360,14 +364,7 @@ TLB::translate(const RequestPtr &req, ThreadContext *tc,
         // an illegal address exception.
         // TODO where is that written in the manual?
         if (!delayed && fault == NoFault && bits(req->getPaddr(), 63)) {
-            ExceptionCode code;
-            if (mode == BaseMMU::Read)
-                code = ExceptionCode::LOAD_ACCESS;
-            else if (mode == BaseMMU::Write)
-                code = ExceptionCode::STORE_ACCESS;
-            else
-                code = ExceptionCode::INST_ACCESS;
-            fault = std::make_shared<AddressFault>(req->getVaddr(), code);
+            createPagefault(req->getVaddr(), mode);
         }
 
         if (!delayed && fault == NoFault) {
@@ -430,13 +427,20 @@ TLB::translateFunctional(const RequestPtr &req, ThreadContext *tc,
     const Addr vaddr = req->getVaddr();
     Addr paddr = vaddr;
 
-    if (FullSystem) {
+    if (FullSystem || tc->getProcessPtr()->useArchPT) {
         MMU *mmu = static_cast<MMU *>(tc->getMMUPtr());
 
         PrivilegeMode pmode = mmu->getMemPriv(tc, mode);
         SATP satp = tc->readMiscReg(MISCREG_SATP);
-        if (pmode != PrivilegeMode::PRV_M &&
-            satp.mode != AddrXlateMode::BARE) {
+
+        if (tc->getProcessPtr()->useArchPT) {
+            pmode = PrivilegeMode::PRV_S;
+            satp.mode = AddrXlateMode::SV39;
+        }
+
+        if ((pmode != PrivilegeMode::PRV_M &&
+            satp.mode != AddrXlateMode::BARE) ||
+            tc->getProcessPtr()->useArchPT) {
             Walker *walker = mmu->getDataWalker();
             unsigned logBytes;
             Fault fault = walker->startFunctional(
@@ -530,7 +534,10 @@ TLB::TlbStats::TlbStats(statistics::Group *parent)
              "Total TLB (read and write) misses", readMisses + writeMisses),
     ADD_STAT(accesses, statistics::units::Count::get(),
              "Total TLB (read and write) accesses",
-             readAccesses + writeAccesses)
+             readAccesses + writeAccesses),
+    ADD_STAT(missRate, statistics::units::Count::get(),
+             "TLB missrate (read and write)",
+             misses / accesses)
 {
 }
 

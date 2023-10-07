@@ -83,6 +83,7 @@ class TLB : public BaseTLB
         statistics::Formula hits;
         statistics::Formula misses;
         statistics::Formula accesses;
+        statistics::Formula missRate;
     } stats;
 
   public:

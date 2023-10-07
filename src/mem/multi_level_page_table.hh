@@ -226,9 +226,9 @@ public:
         for (int64_t offset = 0; offset < size; offset += _pageSize) {
             walk<EntryTypes...>(system, _pageSize, _basePtr,
                                 vaddr + offset, true, &entry);
-
-            entry.reset(paddr + offset, true, flags & Uncacheable,
-                        flags & ReadOnly);
+            // entry.reset(paddr + offset, true, flags & Uncacheable,
+            //             flags & ReadOnly);
+            entry.reset_leaf(paddr + offset);
             entry.write(system->physProxy);
 
             DPRINTF(MMU, "New mapping: %#x-%#x\n",

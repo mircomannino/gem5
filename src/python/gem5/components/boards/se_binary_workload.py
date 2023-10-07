@@ -71,6 +71,7 @@ class SEBinaryWorkload:
         env_list: Optional[List[str]] = None,
         arguments: List[str] = [],
         checkpoint: Optional[Union[Path, CheckpointResource]] = None,
+        use_arch_pt: bool = False,
     ) -> None:
         """Set up the system to run a specific binary.
 
@@ -89,6 +90,7 @@ class SEBinaryWorkload:
         :param arguments: The input arguments for the binary
         :param checkpoint: The checkpoint directory. Used to restore the
         simulation to that checkpoint.
+        :param use_arch_pt: Enable the use of page walker in SE mode.
         """
 
         # We assume this this is in a multiple-inheritance setup with an
@@ -113,6 +115,7 @@ class SEBinaryWorkload:
             process.errout = stderr_file.as_posix()
         if env_list is not None:
             process.env = env_list
+        process.useArchPT = use_arch_pt
 
         if isinstance(self.get_processor(), SwitchableProcessor):
             # This is a hack to get switchable processors working correctly in

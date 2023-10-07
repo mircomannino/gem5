@@ -31,10 +31,12 @@
 #ifndef __ARCH_RISCV_PAGETABLE_H__
 #define __ARCH_RISCV_PAGETABLE_H__
 
+#include "arch/riscv/page_size.hh"
 #include "base/bitunion.hh"
 #include "base/logging.hh"
 #include "base/trie.hh"
 #include "base/types.hh"
+#include "mem/port_proxy.hh"
 #include "sim/serialize.hh"
 
 namespace gem5
@@ -75,6 +77,83 @@ BitUnion64(PTESv39)
     Bitfield<1> r;
     Bitfield<0> v;
 EndBitUnion(PTESv39)
+
+template <int first, int last>
+class HierarchySv39
+{
+public:
+    Addr paddr()            { return pte.ppn << PageShift; }
+    void paddr(Addr addr)   { pte.ppn = addr >> PageShift; }
+
+    bool present()          { return pte.v; }
+    void present(bool p)    { pte.v = p ? 1 : 0; }
+
+    bool uncacheable()      { return true; }
+    void uncacheable(bool u){ }
+
+    bool readonly()         { return !pte.w; }
+    void readonly(bool r)   { pte.w = r ? 0 : 1; }
+
+    bool read()             { return pte.r; }
+    void read(bool r)       { pte.r = r ? 1 : 0; }
+    bool write()            { return pte.w; }
+    void write(bool w)      { pte.w = w ? 1 : 0; }
+    bool exec()             { return pte.x; }
+    void exec(bool x)       { pte.x = x ? 1 : 0; }
+
+    PTESv39 getPTE()        { return pte; }
+
+
+    void
+    read(PortProxy &p, Addr table, Addr vaddr)
+    {
+        entryAddr = table;
+        entryAddr += bits(vaddr, first, last) * sizeof(PTESv39);
+        pte = p.read<PTESv39>(entryAddr);
+    }
+
+    void
+    reset(Addr _paddr, bool _present=true, bool _uncacheable=false,
+        bool _readonly=false)
+    {
+        pte = 0;
+        paddr(_paddr);
+        present(_present);
+        uncacheable(_uncacheable);
+        readonly(_readonly);
+        write(false);
+        read(false);
+        exec(false);
+    }
+
+    void
+    reset_leaf(Addr _paddr, bool _present=true, bool _uncacheable=false,
+        bool _readonly=false) {
+        pte = 0;
+        paddr(_paddr);
+        present(_present);
+        uncacheable(_uncacheable);
+        read(true);
+        write(true);
+
+    }
+
+    void
+    write(PortProxy &p)
+    {
+        p.write(entryAddr, pte);
+    }
+
+    static int
+    tableSize()
+    {
+        return 1 << ((first - last) + 4 - PageShift);
+    }
+
+protected:
+    PTESv39 pte;
+    Addr entryAddr;
+};
 
 struct TlbEntry;
 typedef Trie<Addr, TlbEntry> TlbEntryTrie;

@@ -55,32 +55,46 @@
 #include "sim/syscall_return.hh"
 #include "sim/system.hh"
 
+#include "arch/riscv/pagetable.hh"
+#include "mem/multi_level_page_table.hh"
+
 namespace gem5
 {
 
 using namespace RiscvISA;
 
+template class MultiLevelPageTable<HierarchySv39<38, 30>,
+                                   HierarchySv39<29, 21>,
+                                   HierarchySv39<20, 12> >;
+
+typedef MultiLevelPageTable<HierarchySv39<38, 30>,
+                            HierarchySv39<29, 21>,
+                            HierarchySv39<20, 12> > ArchPageTable;
+
 RiscvProcess::RiscvProcess(const ProcessParams &params,
         loader::ObjectFile *objFile) :
-        Process(params,
+        Process(params, params.useArchPT ?
+                static_cast<EmulationPageTable *>(
+                            new ArchPageTable(params.name, params.pid,
+                                              params.system, PageBytes)) :
                 new EmulationPageTable(params.name, params.pid, PageBytes),
                 objFile)
 {
-    fatal_if(params.useArchPT, "Arch page tables not implemented.");
 }
 
 RiscvProcess64::RiscvProcess64(const ProcessParams &params,
         loader::ObjectFile *objFile) :
         RiscvProcess(params, objFile)
 {
-    const Addr stack_base = 0x7FFFFFFFFFFFFFFFL;
+    const Addr stack_base = useArchPT ? 0xFFFF'FFFF'FFFF'0000L : 0x7FFFFFFFFFFFFFFFL;
     const Addr max_stack_size = 8 * 1024 * 1024;
     const Addr next_thread_stack_base = stack_base - max_stack_size;
     const Addr brk_point = roundUp(image.maxAddr(), PageBytes);
-    const Addr mmap_end = 0x4000000000000000L;
+    const Addr mmap_end = useArchPT ? 0xFFFF'FFEF'FFFF'0000L : 0x4000000000000000L;
     memState = std::make_shared<MemState>(this, brk_point, stack_base,
             max_stack_size, next_thread_stack_base, mmap_end);
 }
+
 
 RiscvProcess32::RiscvProcess32(const ProcessParams &params,
         loader::ObjectFile *objFile) :
@@ -100,12 +114,20 @@ RiscvProcess64::initState()
 {
     Process::initState();
 
+    // Setup SATP registers
+    SATP satp = 0x0;
+    satp.ppn = static_cast<ArchPageTable*>(pTable)->basePtr();
+    satp.mode = AddrXlateMode::SV39;
+    satp.asid = this->pid();
+
     argsInit<uint64_t>(PageBytes);
     for (ContextID ctx: contextIds) {
         auto *tc = system->threads[ctx];
-        tc->setMiscRegNoEffect(MISCREG_PRV, PRV_U);
+        tc->setMiscRegNoEffect(MISCREG_PRV, PRV_S);
         auto *isa = dynamic_cast<ISA*>(tc->getIsaPtr());
         fatal_if(isa->rvType() != RV64, "RISC V CPU should run in 64 bits mode");
+
+        system->threads[ctx]->setMiscReg(MISCREG_SATP, satp);
     }
 }
 

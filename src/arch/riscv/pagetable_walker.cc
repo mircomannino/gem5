@@ -192,6 +192,7 @@ Walker::WalkerState::initState(ThreadContext * _tc,
     status = tc->readMiscReg(MISCREG_STATUS);
     pmode = walker->tlb->getMemPriv(tc, mode);
     satp = tc->readMiscReg(MISCREG_SATP);
+    satp.mode = AddrXlateMode::SV39;
     assert(satp.mode == AddrXlateMode::SV39);
 }
 
@@ -307,6 +308,11 @@ Walker::WalkerState::stepWalk(PacketPtr &write)
     // walks is S mode according to specs
     fault = walker->pmp->pmpCheck(read->req, BaseMMU::Read,
                     RiscvISA::PrivilegeMode::PRV_S, tc, entry.vaddr);
+
+    // Hack: Should be moved in elf_object
+    if (level==0 and mode==BaseMMU::Execute) {
+        pte.x = 1;
+    }
 
     if (fault == NoFault) {
         // step 3:
