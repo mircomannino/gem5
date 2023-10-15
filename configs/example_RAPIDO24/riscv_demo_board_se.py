@@ -34,7 +34,8 @@ Usage
 ```
 scons build/RISCV/gem5.opt
 ./build/RISCV/gem5.opt \
-    configs/example_RAPIDO24//riscv_demo_board_se.py
+    configs/example_RAPIDO24//riscv_demo_board_se.py \
+	--workload=/path/to/riscv/binary
 ```
 """
 
@@ -120,14 +121,14 @@ board = SimpleBoard(
 )
 
 # set the riscv binary as the board workload
-arguments = [option for option in (args.options).split()] if args.options != None else ""
+arguments = [option for option in (args.options).split()] if args.options != None else []
 board.set_se_binary_workload(
     binary=CustomResource(args.workload),
     arguments=arguments,
     use_arch_pt = args.use_arch_pt
 )
 
-# run the simulation with the RISCV Matched board
+# run the simulation with the RISCV board
 MAX_INSTS = 2 * 10**9
 simulator = Simulator(board=board, full_system=False)
 simulator.schedule_max_insts(MAX_INSTS)
