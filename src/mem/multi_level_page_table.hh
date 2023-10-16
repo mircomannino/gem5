@@ -217,7 +217,7 @@ public:
     Addr basePtr() { return _basePtr; }
 
     void
-    map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags = 0) override
+    map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags = 0, bool executable=false) override
     {
         EmulationPageTable::map(vaddr, paddr, size, flags);
 
@@ -228,7 +228,8 @@ public:
                                 vaddr + offset, true, &entry);
             // entry.reset(paddr + offset, true, flags & Uncacheable,
             //             flags & ReadOnly);
-            entry.reset_leaf(paddr + offset);
+            
+            entry.reset_leaf(paddr + offset, executable);
             entry.write(system->physProxy);
 
             DPRINTF(MMU, "New mapping: %#x-%#x\n",

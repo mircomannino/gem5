@@ -127,7 +127,7 @@ public:
     }
 
     void
-    reset_leaf(Addr _paddr, bool _present=true, bool _uncacheable=false,
+    reset_leaf(Addr _paddr, bool _executable, bool _present=true, bool _uncacheable=false,
         bool _readonly=false) {
         pte = 0;
         paddr(_paddr);
@@ -135,7 +135,7 @@ public:
         uncacheable(_uncacheable);
         read(true);
         write(true);
-
+        exec(_executable);
     }
 
     void

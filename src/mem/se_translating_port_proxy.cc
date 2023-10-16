@@ -57,9 +57,15 @@ SETranslatingPortProxy::fixupRange(const TranslationGen::Range &range,
 {
     auto *process = _tc->getProcessPtr();
 
-    if (mode == BaseMMU::Write) {
+    if (mode == BaseMMU::Write || mode == BaseMMU::Execute) {
         if (allocating == Always) {
-            process->allocateMem(range.vaddr, range.size);
+            if (mode == BaseMMU::Write) {
+                process->allocateMem(range.vaddr, range.size);
+            }
+            else{
+                process->allocateMem(range.vaddr, range.size, false,true);
+            }
+            
             return true;
         } else if (allocating == NextPage &&
                 process->fixupFault(range.vaddr)) {

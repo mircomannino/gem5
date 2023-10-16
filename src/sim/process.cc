@@ -314,7 +314,7 @@ Process::drain()
 }
 
 void
-Process::allocateMem(Addr vaddr, int64_t size, bool clobber)
+Process::allocateMem(Addr vaddr, int64_t size, bool clobber, bool executable)
 {
     const auto page_size = pTable->pageSize();
 
@@ -340,7 +340,7 @@ Process::allocateMem(Addr vaddr, int64_t size, bool clobber)
     const Addr pages_size = npages * page_size;
     pTable->map(page_addr, paddr, pages_size,
                 clobber ? EmulationPageTable::Clobber :
-                          EmulationPageTable::MappingFlags(0));
+                          EmulationPageTable::MappingFlags(0), executable);
 }
 
 void
