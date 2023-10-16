@@ -55,17 +55,17 @@ class MemoryImage
     struct Segment
     {
         Segment(const std::string &_name, Addr _base,
-                const uint8_t *_data, size_t _size) :
-            name(_name), base(_base), data(_data), size(_size)
+                const uint8_t *_data, size_t _size, bool _exec=false) :
+            name(_name), base(_base), data(_data), size(_size), executable(_exec)
         {}
 
-        Segment(const std::string &_name, Addr _base, size_t _size) :
-            name(_name), base(_base), size(_size)
+        Segment(const std::string &_name, Addr _base, size_t _size, bool _exec=false) :
+            name(_name), base(_base), size(_size), executable(_exec)
         {}
 
         Segment(const std::string &_name, Addr _base,
-                const ImageFileDataPtr &_ifd, Addr offset, size_t _size) :
-            ifd(_ifd), name(_name), base(_base), size(_size)
+                const ImageFileDataPtr &_ifd, Addr offset, size_t _size, bool _exec=false) :
+            ifd(_ifd), name(_name), base(_base), size(_size), executable(_exec)
         {
             panic_if(offset + size > ifd->len(),
                     "Segment outside the bounds of the image data");
@@ -81,6 +81,7 @@ class MemoryImage
         Addr base = 0;
         const uint8_t *data = nullptr;
         size_t size = 0;
+        bool executable;
     };
 
     MemoryImage() {}

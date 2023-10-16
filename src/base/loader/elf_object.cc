@@ -350,13 +350,22 @@ ElfObject::handleLoadableSegment(GElf_Phdr phdr, int seg_num)
 {
     auto name = std::to_string(seg_num);
 
+    bool executable = phdr.p_flags & PF_X;
+
+    if (executable){
+        std::cout<<"loading an executable segment"<<std::endl;
+    }
+    else{
+        std::cout<<"loading a non executable segment"<<std::endl;
+    }
+
     if (phdr.p_memsz == 0) {
         warn("Ignoring empty loadable segment %s", name);
         return;
     }
 
     image.addSegment({ name, phdr.p_paddr, imageData,
-                       phdr.p_offset, phdr.p_filesz });
+                       phdr.p_offset, phdr.p_filesz, executable});
     Addr uninitialized = phdr.p_memsz - phdr.p_filesz;
     if (uninitialized) {
         // There may be parts of a segment which aren't included in the

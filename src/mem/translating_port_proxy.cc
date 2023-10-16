@@ -99,9 +99,15 @@ TranslatingPortProxy::tryReadBlob(Addr addr, void *p, int size) const
 
 bool
 TranslatingPortProxy::tryWriteBlob(
-        Addr addr, const void *p, int size) const
+        Addr addr, const void *p, int size, bool executable) const
 {
-    constexpr auto mode = BaseMMU::Write;
+    auto mode = executable ? BaseMMU::Execute : BaseMMU::Write;
+    if(executable){
+        std::cout<<"BaseMMU mode is Execute"<<std::endl;
+    }
+    else{
+        std::cout<<"BaseMMU mode is Write"<<std::endl;
+    }
     return tryOnBlob(mode, _tc->getMMUPtr()->translateFunctional(
             addr, size, _tc, mode, flags),
         [this, &p](const auto &range) {

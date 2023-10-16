@@ -122,7 +122,7 @@ class EmulationPageTable : public Serializable
      * @param flags Generic mapping flags that can be set by or-ing values
      *              from MappingFlags enum.
      */
-    virtual void map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags = 0);
+    virtual void map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags = 0, bool executable=false);
     virtual void remap(Addr vaddr, int64_t size, Addr new_vaddr);
     virtual void unmap(Addr vaddr, int64_t size);
 

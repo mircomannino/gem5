@@ -45,7 +45,7 @@ namespace gem5
 {
 
 void
-EmulationPageTable::map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags)
+EmulationPageTable::map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags, bool executable)
 {
     bool clobber = flags & Clobber;
     // starting address must be page aligned

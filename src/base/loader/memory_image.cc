@@ -40,7 +40,15 @@ MemoryImage::writeSegment(const Segment &seg, const PortProxy &proxy) const
 {
     if (seg.size != 0) {
         if (seg.data) {
-            proxy.writeBlob(seg.base, seg.data, seg.size);
+            if(seg.executable){
+                std::cout<<"writeSegment for an executable segment"<<std::endl;
+                proxy.writeBlob(seg.base, seg.data, seg.size, seg.executable);
+            }
+            else{
+                std::cout<<"writeSegment for a non executable segment"<<std::endl;
+                proxy.writeBlob(seg.base, seg.data, seg.size);
+            }
+            
         } else {
             // no image: must be bss
             proxy.memsetBlob(seg.base, 0, seg.size);

@@ -217,7 +217,7 @@ public:
     Addr basePtr() { return _basePtr; }
 
     void
-    map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags = 0) override
+    map(Addr vaddr, Addr paddr, int64_t size, uint64_t flags = 0, bool executable=false) override
     {
         EmulationPageTable::map(vaddr, paddr, size, flags);
 
@@ -228,6 +228,13 @@ public:
                                 vaddr + offset, true, &entry);
             // entry.reset(paddr + offset, true, flags & Uncacheable,
             //             flags & ReadOnly);
+            if(executable){
+                std::cout<<"mapping an executable pte"<<std::endl;
+            }
+            else{
+                std::cout<<"mapping a non executable pte"<<std::endl;
+            }
+            
             entry.reset_leaf(paddr + offset);
             entry.write(system->physProxy);
 

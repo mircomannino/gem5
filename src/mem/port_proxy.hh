@@ -154,7 +154,7 @@ class PortProxy : FunctionalRequestProtocol
      * Returns true on success and false on failure.
      */
     virtual bool
-    tryWriteBlob(Addr addr, const void *p, int size) const
+    tryWriteBlob(Addr addr, const void *p, int size, bool executable=false) const
     {
         writeBlobPhys(addr, 0, p, size);
         return true;
@@ -189,9 +189,15 @@ class PortProxy : FunctionalRequestProtocol
      * Same as tryWriteBlob, but insists on success.
      */
     void
-    writeBlob(Addr addr, const void *p, int size) const
+    writeBlob(Addr addr, const void *p, int size, bool executable=false) const
     {
-        if (!tryWriteBlob(addr, p, size))
+        if(executable){
+            std::cout<<"writeBlob for executable segment"<<std::endl;
+        }
+        else{
+            std::cout<<"writeBlob for non executable segment"<<std::endl;
+        }
+        if (!tryWriteBlob(addr, p, size, executable))
             fatal("writeBlob(%#x, ...) failed", addr);
     }
 
