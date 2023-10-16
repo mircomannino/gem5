@@ -310,9 +310,9 @@ Walker::WalkerState::stepWalk(PacketPtr &write)
                     RiscvISA::PrivilegeMode::PRV_S, tc, entry.vaddr);
 
     // Hack: Should be moved in elf_object
-    if (level==0 and mode==BaseMMU::Execute) {
-        pte.x = 1;
-    }
+    // if (level==0 and mode==BaseMMU::Execute) {
+    //     pte.x = 1;
+    // }
 
     if (fault == NoFault) {
         // step 3:

@@ -191,12 +191,6 @@ class PortProxy : FunctionalRequestProtocol
     void
     writeBlob(Addr addr, const void *p, int size, bool executable=false) const
     {
-        if(executable){
-            std::cout<<"writeBlob for executable segment"<<std::endl;
-        }
-        else{
-            std::cout<<"writeBlob for non executable segment"<<std::endl;
-        }
         if (!tryWriteBlob(addr, p, size, executable))
             fatal("writeBlob(%#x, ...) failed", addr);
     }

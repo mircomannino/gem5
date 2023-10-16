@@ -60,11 +60,9 @@ SETranslatingPortProxy::fixupRange(const TranslationGen::Range &range,
     if (mode == BaseMMU::Write || mode == BaseMMU::Execute) {
         if (allocating == Always) {
             if (mode == BaseMMU::Write) {
-                std::cout<<"fixupRange for non executable segment"<<std::endl;
                 process->allocateMem(range.vaddr, range.size);
             }
             else{
-                std::cout<<"fixupRange for executable segment"<<std::endl;
                 process->allocateMem(range.vaddr, range.size, false,true);
             }
             

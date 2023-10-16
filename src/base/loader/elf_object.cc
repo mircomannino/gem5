@@ -352,13 +352,6 @@ ElfObject::handleLoadableSegment(GElf_Phdr phdr, int seg_num)
 
     bool executable = phdr.p_flags & PF_X;
 
-    if (executable){
-        std::cout<<"loading an executable segment"<<std::endl;
-    }
-    else{
-        std::cout<<"loading a non executable segment"<<std::endl;
-    }
-
     if (phdr.p_memsz == 0) {
         warn("Ignoring empty loadable segment %s", name);
         return;

@@ -228,14 +228,8 @@ public:
                                 vaddr + offset, true, &entry);
             // entry.reset(paddr + offset, true, flags & Uncacheable,
             //             flags & ReadOnly);
-            if(executable){
-                std::cout<<"mapping an executable pte"<<std::endl;
-            }
-            else{
-                std::cout<<"mapping a non executable pte"<<std::endl;
-            }
             
-            entry.reset_leaf(paddr + offset);
+            entry.reset_leaf(paddr + offset, executable);
             entry.write(system->physProxy);
 
             DPRINTF(MMU, "New mapping: %#x-%#x\n",
