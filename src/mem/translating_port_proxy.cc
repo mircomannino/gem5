@@ -98,11 +98,10 @@ TranslatingPortProxy::tryReadBlob(Addr addr, void *p, int size) const
 }
 
 bool
-TranslatingPortProxy::tryWriteBlob(
-        Addr addr, const void *p, int size, bool executable) const
+TranslatingPortProxy::tryWriteBlob(Addr addr, const void *p, int size, 
+            bool executable) const
 {
     auto mode = executable ? BaseMMU::Execute : BaseMMU::Write;
-
     return tryOnBlob(mode, _tc->getMMUPtr()->translateFunctional(
             addr, size, _tc, mode, flags),
         [this, &p](const auto &range) {

@@ -192,7 +192,6 @@ Walker::WalkerState::initState(ThreadContext * _tc,
     status = tc->readMiscReg(MISCREG_STATUS);
     pmode = walker->tlb->getMemPriv(tc, mode);
     satp = tc->readMiscReg(MISCREG_SATP);
-    satp.mode = AddrXlateMode::SV39;
     assert(satp.mode == AddrXlateMode::SV39);
 }
 

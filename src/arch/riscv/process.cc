@@ -112,22 +112,33 @@ RiscvProcess32::RiscvProcess32(const ProcessParams &params,
 void
 RiscvProcess64::initState()
 {
+    // Setup SATP register
+    SATP satp = 0x0;
+    if (useArchPT)
+    {
+        satp.mode = AddrXlateMode::SV39;
+        satp.asid = this->pid();
+        for (ContextID ctx: contextIds)
+            system->threads[ctx]->setMiscReg(MISCREG_SATP, satp);
+    }
+
     Process::initState();
 
-    // Setup SATP registers
-    SATP satp = 0x0;
-    satp.ppn = static_cast<ArchPageTable*>(pTable)->basePtr();
-    satp.mode = AddrXlateMode::SV39;
-    satp.asid = this->pid();
+    // Setup SATP.PPN field
+    // This is done after pTable initialization
+    if (useArchPT)
+    {
+        satp.ppn = static_cast<ArchPageTable*>(pTable)->basePtr();
+        for (ContextID ctx: contextIds)
+            system->threads[ctx]->setMiscReg(MISCREG_SATP, satp);
+    }
 
     argsInit<uint64_t>(PageBytes);
     for (ContextID ctx: contextIds) {
         auto *tc = system->threads[ctx];
-        tc->setMiscRegNoEffect(MISCREG_PRV, PRV_S);
+        tc->setMiscRegNoEffect(MISCREG_PRV, PRV_U);
         auto *isa = dynamic_cast<ISA*>(tc->getIsaPtr());
         fatal_if(isa->rvType() != RV64, "RISC V CPU should run in 64 bits mode");
-
-        system->threads[ctx]->setMiscReg(MISCREG_SATP, satp);
     }
 }
 

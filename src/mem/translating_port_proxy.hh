@@ -81,7 +81,8 @@ class TranslatingPortProxy : public PortProxy
 
     /** Version of tryWriteBlob that translates virt->phys and deals
       * with page boundries. */
-    bool tryWriteBlob(Addr addr, const void *p, int size, bool executable=false) const override;
+    bool tryWriteBlob(Addr addr, const void *p, int size, 
+            bool executable=false) const override;
 
     /**
      * Fill size bytes starting at addr with byte value val.

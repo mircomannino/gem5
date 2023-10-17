@@ -432,12 +432,6 @@ TLB::translateFunctional(const RequestPtr &req, ThreadContext *tc,
 
         PrivilegeMode pmode = mmu->getMemPriv(tc, mode);
         SATP satp = tc->readMiscReg(MISCREG_SATP);
-
-        if (tc->getProcessPtr()->useArchPT) {
-            pmode = PrivilegeMode::PRV_S;
-            satp.mode = AddrXlateMode::SV39;
-        }
-
         if ((pmode != PrivilegeMode::PRV_M &&
             satp.mode != AddrXlateMode::BARE) ||
             tc->getProcessPtr()->useArchPT) {

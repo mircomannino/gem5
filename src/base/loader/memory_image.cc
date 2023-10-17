@@ -40,13 +40,7 @@ MemoryImage::writeSegment(const Segment &seg, const PortProxy &proxy) const
 {
     if (seg.size != 0) {
         if (seg.data) {
-            if(seg.executable){
-                proxy.writeBlob(seg.base, seg.data, seg.size, true);
-            }
-            else{
-                proxy.writeBlob(seg.base, seg.data, seg.size);
-            }
-            
+            proxy.writeBlob(seg.base, seg.data, seg.size, seg.executable);            
         } else {
             // no image: must be bss
             proxy.memsetBlob(seg.base, 0, seg.size);

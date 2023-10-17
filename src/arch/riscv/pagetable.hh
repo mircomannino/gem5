@@ -94,6 +94,9 @@ public:
     bool readonly()         { return !pte.w; }
     void readonly(bool r)   { pte.w = r ? 0 : 1; }
 
+    bool user()             { return pte.u; }
+    void user(bool u)       { pte.u = u ? 1 : 0; }
+
     bool read()             { return pte.r; }
     void read(bool r)       { pte.r = r ? 1 : 0; }
     bool write()            { return pte.w; }
@@ -113,29 +116,25 @@ public:
     }
 
     void
-    reset(Addr _paddr, bool _present=true, bool _uncacheable=false,
-        bool _readonly=false)
+    reset(Addr _paddr, bool _present=true, bool _executable=false,
+        bool _uncacheable=false, bool _readonly=false, bool _user=true, 
+        bool _is_leaf=false)
     {
         pte = 0;
         paddr(_paddr);
         present(_present);
         uncacheable(_uncacheable);
         readonly(_readonly);
-        write(false);
-        read(false);
-        exec(false);
-    }
-
-    void
-    reset_leaf(Addr _paddr, bool _executable, bool _present=true, bool _uncacheable=false,
-        bool _readonly=false) {
-        pte = 0;
-        paddr(_paddr);
-        present(_present);
-        uncacheable(_uncacheable);
-        read(true);
-        write(true);
-        exec(_executable);
+        user(_user);
+        if (_is_leaf) {
+            read(true);
+            write(true);
+            exec(_executable);
+        } else {
+            write(false);
+            read(false);
+            exec(false);
+        }
     }
 
     void
