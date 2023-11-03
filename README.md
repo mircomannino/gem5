@@ -1,5 +1,5 @@
 # Integration of Page Table Walk in gem5 SE mode
-This branch enable the use of RISC-V page table walker in SE mode.
+This branch enables the use of RISC-V page table walker in SE mode.
 
 ## Differences
 All the differences, compared to gem5 v23.0.1.0, are shown in ```gem5.diff``` file.
