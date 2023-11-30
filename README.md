@@ -11,7 +11,7 @@ The configuration file includes additional options:
   --options OPTIONS    Options of the binary
   --use-arch-pt        Enable the use of page table in SE mode Default: False
   --dtb-size DTB_SIZE  Number of data TLB entries. Default: 64
-  --itb-size ITB_SIZE  Number of data TLB entries. Default: 64
+  --itb-size ITB_SIZE  Number of instruction TLB entries. Default: 64
 ```
 The most important option is ```--use-arch-pt``` that enables the use of the page table walk in gem5 SE.
 
