@@ -129,9 +129,7 @@ board.set_se_binary_workload(
 )
 
 # run the simulation with the RISCV board
-MAX_INSTS = 2 * 10**9
 simulator = Simulator(board=board, full_system=False)
-simulator.schedule_max_insts(MAX_INSTS)
 simulator.run()
 
 print(
