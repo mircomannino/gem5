@@ -33,7 +33,7 @@ build/RISCV/gem5.opt \
 
 If you use this repository in your work, please cite:
 ```BibTeX
-@inproceedings{mannino2023integration,
+@inproceedings{mannino2024integration,
   title={Integration of RISC-V Page Table Walk in gem5 SE Mode},
   author={Mannino, Mirco and Huang, Yinting and Peccerillo, Biagio and Medaglini, Alessio and Bartolini, Sandro},
   booktitle={Proceedings of the Rapido'24 Workshop on Rapid Simulation and Performance Evaluation: Methods and Tools},
