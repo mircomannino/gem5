@@ -1,5 +1,24 @@
 # Integration of RISC-V Page Table Walk in gem5 SE Mode
-This branch enables the use of page table walk in SE mode (RISC-V ISA).
+This branch enables the use of page table walk in SE mode (RISC-V ISA). 
+
+The work is described in the paper [Integration of RISC-V Page Table Walk in gem5 SE Mode](https://dl.acm.org/doi/abs/10.1145/3642921.3642926), presented at RAPIDO'24 workshop (HiPEAC).
+
+If you use this repository in your work, please cite:
+```BibTeX
+@inproceedings{Mannino24,
+author = {Mannino, Mirco and Huang, Yinting and Peccerillo, Biagio and Medaglini, Alessio and Bartolini, Sandro},
+title = {{Integration of RISC-V Page Table Walk in gem5 SE Mode}},
+year = {2024},
+isbn = {9798400717918},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+doi = {10.1145/3642921.3642926},
+booktitle = {Proceedings of the 16th Workshop on Rapid Simulation and Performance Evaluation for Design},
+pages = {22--28},
+numpages = {7},
+series = {RAPIDO '24}
+}
+```
 
 ## Differences
 All the differences, compared to gem5 v23.0.1.0, are shown in ```gem5.diff``` file.
@@ -29,16 +48,3 @@ build/RISCV/gem5.opt \
     --itlb-size 1024
 ```
 
-## Citation
-
-If you use this repository in your work, please cite:
-```BibTeX
-@inproceedings{mannino2024integration,
-  title={{Integration of RISC-V Page Table Walk in gem5 SE Mode}},
-  author={Mannino, Mirco and Huang, Yinting and Peccerillo, Biagio and Medaglini, Alessio and Bartolini, Sandro},
-  booktitle={Proceedings of the Rapido'24 Workshop on Rapid Simulation and Performance Evaluation: Methods and Tools},
-  pages={1--7},
-  year={2024},
-  doi={10.1145/3642921.3642926},
-}
-```
