@@ -125,6 +125,9 @@ ArmProcess32::initState()
 void
 ArmProcess64::initState()
 {
+    if (useForClone)
+        return;
+
     Process::initState();
     argsInit<uint64_t>(PageBytes, int_reg::Sp0);
     for (auto id: contextIds) {
